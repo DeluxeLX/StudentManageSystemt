@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- association标签中，property是type类里面的参数名，column是数据库里的列名 -->
+
+<!-- 在resultMap中，必须按照id >> result >> association >> collection的顺序写 -->
+
+<mapper namespace="com.itlzh.mapper.RewardDAO">
+    <resultMap id="rewardMap" type="reward">
+        <id column="id" property="id"/>
+        <result column="recTime" property="recTime"/>
+        <result column="description" property="description"/>
+        <association property="oneStudent" javaType="student">
+            <id column="studentId" property="studentId"/>
+            <result column="name" property="name"/>
+            <result column="sex" property="sex"/>
+            <result column="classId" property="classId"/>
+            <result column="departmentId" property="departmentId"/>
+            <result column="birthday" property="birthday"/>
+            <result column="nativePlace" property="nativePlace"/>
+        </association>
+        <association property="rewardlevel" javaType="rewardLevel">
+            <id column="code" property="code"/>
+            <result column="rewardDescription" property="description"/>
+        </association>
+    </resultMap>
+
+    <!-- 插入一个学生奖励情况 -->
+    <insert id="addReward" parameterType="reward">
+        insert into reward (studentId, rewardLevel, recTime, description) values (#{studentId}, #{rewardLevel}, #{recTime}, #{description});
+    </insert>
+
+    <!-- 通过一个学生ID查询它的奖励情况 -->
+    <select id="findOneReward" parameterType="string" resultMap="rewardMap">
+        select R.id, R.recTime, R.description,
+               S.studentId, S.name, S.sex, S.classId, S.departmentId,
+               RL.code, RL.description rewardDescription
+            from student S, reward R, reward_levels RL
+                where R.studentId = S.studentId and R.rewardLevel = RL.code and R.studentId = #{studentId};
+    </select>
+
+    <!-- 通过一个奖励代号查询所有得了这个奖励的学生 -->
+    <select id="findAllRewardByLevel" parameterType="int" resultMap="rewardMap">
+        select R.id, R.recTime, R.description,
+               S.studentId, S.name, S.sex, S.classId, S.departmentId,
+               RL.code, RL.description rewardDescription
+            from student S, reward R, reward_levels RL
+                where R.studentId = S.studentId and R.rewardLevel = RL.code and R.rewardLevel = #{rewardLevel} order by S.studentId asc;
+    </select>
+
+    <select id="findAllReward" resultMap="rewardMap">
+        select R.id, R.recTime, R.description,
+               S.studentId, S.name, S.sex, S.classId, S.departmentId,
+               RL.code, RL.description rewardDescription
+            from student S, reward R, reward_levels RL
+                where R.studentId = S.studentId and R.rewardLevel = RL.code order by S.studentId asc;
+    </select>
+
+    <select id="findRewardByClass" resultMap="rewardMap">
+        select R.id, R.recTime, R.description,
+               S.studentId, S.name, S.sex, S.classId, S.departmentId,
+               RL.code, RL.description rewardDescription
+            from student S, reward R, reward_levels RL
+                where R.studentId = S.studentId and R.rewardLevel = RL.code and S.classId = #{classId} order by S.studentId asc;
+    </select>
+
+    <update id="updateReward" parameterType="reward">
+        update reward set rewardLevel=#{rewardLevel}, recTime=#{recTime}, description=#{description}
+            where studentId=#{studentId};
+    </update>
+
+    <delete id="deleteReward" parameterType="string">
+        delete from reward where studentId = #{studentId};
+    </delete>
+</mapper>

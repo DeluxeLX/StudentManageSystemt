@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- association标签中，property是type类里面的参数名，column是数据库里的列名 -->
+<!-- 在resultMap中，必须按照id >> result >> association >> collection的顺序写 -->
+
+<mapper namespace="com.itlzh.mapper.TeacherDAO">
+
+    <select id="findCourseByCid" parameterType="string" resultMap="com.itlzh.mapper.CourseDAO.courseMap">
+        select C.id courseId, C.name name, C.credit_hour, C.period, C.classTime, C.classroom, C.intro, C.vacantSeats,
+               T.id teacherId, T.name teacherName, T.departmentId,
+               CS.courseCode courseCode, CS.description
+            from (course C inner join teacher T on C.teacherId = T.id)
+                 inner join course_state CS on C.state = CS.courseCode where C.id = #{courseId} order by C.id asc;
+    </select>
+
+    <select id="findCourseBySelf" parameterType="string" resultMap="com.itlzh.mapper.CourseDAO.courseMap">
+        select C.id courseId, C.name name, C.credit_hour, C.period, C.classTime, C.classroom, C.intro, C.vacantSeats,
+               T.id teacherId, T.name teacherName, T.departmentId,
+               CS.courseCode courseCode, CS.description
+            from (course C inner join teacher T on C.teacherId = T.id)
+                 inner join course_state CS on C.state = CS.courseCode where C.teacherId = #{teacherId} order by C.id asc;
+    </select>
+
+    <select id="findIsSelectCourseByTid" parameterType="string" resultMap="com.itlzh.mapper.CourseDAO.courseMap">
+        select C.id courseId, C.name name, C.credit_hour, C.period, C.classTime, C.classroom, C.intro, C.vacantSeats,
+               T.id teacherId, T.name teacherName, T.departmentId,
+               CS.courseCode courseCode, CS.description
+            from (course C inner join teacher T on C.teacherId = T.id)
+                 inner join course_state CS on C.state = CS.courseCode where C.teacherId = #{teacherId} and C.state = 3 order by C.id asc;
+    </select>
+
+    <insert id="addTeaCourse" parameterType="course">
+        insert into course
+            values (#{id}, #{name}, #{teacherId}, #{credit_hour}, #{period}, #{classTime}, #{classroom}, #{intro}, #{state}, #{vacantSeats});
+    </insert>
+
+    <update id="deleteTeaCourse" parameterType="string">
+        update course set state=1 where id = #{courseId};
+    </update>
+
+    <update id="updateTeaCourse" parameterType="course">
+        update course set name=#{name}, credit_hour=#{credit_hour}, period=#{period}, classTime=#{classTime},
+                          classroom=#{classroom}, intro=#{intro}, state=#{state}, vacantSeats=#{vacantSeats}
+            where teacherId=#{teacherId} and id=#{id};
+    </update>
+
+    <select id="findTidByTName" parameterType="string" resultType="string">
+        select id from teacher where name = #{teacherName};
+    </select>
+
+    <update id="addAllStuScore" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update score
+            <set>
+                score=#{item.score}
+            </set>
+            where studentId=#{item.studentId} and courseId=#{item.courseName}
+        </foreach>
+    </update>
+</mapper>

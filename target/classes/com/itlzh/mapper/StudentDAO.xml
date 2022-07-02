@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- association标签中，property是type类里面的参数名，column是数据库里的列名 -->
+<!-- 在resultMap中，必须按照id >> result >> association >> collection的顺序写 -->
+
+<mapper namespace="com.itlzh.mapper.StudentDAO">
+    <resultMap id="studentMap" type="student">
+        <id column="studentId" property="studentId"/>
+        <result column="name" property="name"/>
+        <result column="sex" property="sex"/>
+        <result column="birthday" property="birthday"/>
+        <result column="nativePlace" property="nativePlace"/>
+        <association property="aclass" javaType="class">
+            <id column="id1" property="id"/>
+            <result column="className" property="name"/>
+            <result column="monitorId" property="monitorId"/>
+        </association>
+        <association property="department" javaType="department">
+            <id column="id2" property="id"/>
+            <result column="departmentName" property="name"/>
+        </association>
+    </resultMap>
+
+    <!-- 插入一个学生的信息 -->
+    <insert id="addStudent" parameterType="student">
+        insert into student values (#{studentId}, #{name}, #{sex}, #{classId}, #{departmentId}, #{birthday}, #{nativePlace});
+    </insert>
+
+    <!-- 查询学生的基本信息 -->
+    <select id="findAllStudent" resultMap="studentMap">
+        select S.studentId, S.name, S.sex, S.classId, S.departmentId, S.birthday, S.nativePlace,
+               C.id id1, C.name className, C.monitorId,
+               D.id id2, D.name departmentName
+            from student S, class C, department D
+                where S.classId = C.id and S.departmentId = D.id order by S.studentId asc;
+    </select>
+
+    <!-- 根据系名和班级查询学生的基本信息 -->
+    <select id="findStudentByClass" parameterType="string" resultMap="studentMap">
+        select S.studentId, S.name, S.sex, S.classId, S.departmentId, S.birthday, S.nativePlace,
+               C.id id1, C.name className, C.monitorId,
+               D.id id2, D.name departmentName
+            from student S, class C, department D
+                where S.departmentId = #{departmentId} and S.classId = C.id and S.departmentId = D.id and S.classId = #{classId} order by S.studentId asc;
+    </select>
+
+    <!-- 通过一个学生ID来查询这个学生的基本信息 -->
+    <select id="findOneStudent" parameterType="string" resultMap="studentMap">
+        select S.studentId, S.name, S.sex, S.classId, S.departmentId, S.birthday, S.nativePlace,
+               C.id id1, C.name className, C.monitorId,
+               D.id id2, D.name departmentName
+            from student S, class C, department D
+                where S.classId = C.id and S.departmentId = D.id and S.studentId = #{studentId};
+    </select>
+
+    <!-- 根据传来的学生ID修改学生的基本信息 -->
+    <update id="updateStudent" parameterType="student">
+        update student set name=#{name}, sex=#{sex}, classId=#{classId}, departmentId=#{departmentId}, birthday=#{birthday}, nativePlace=#{nativePlace}
+            where studentId = #{studentId};
+    </update>
+
+    <!-- 删除一个学生的信息 -->
+    <delete id="deleteStudent" parameterType="string">
+        delete from student where studentId = #{studentId};
+    </delete>
+</mapper>

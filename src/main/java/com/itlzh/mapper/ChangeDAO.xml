@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- association标签中，property是type类里面的参数名，column是数据库里的列名 -->
+
+<!-- 在resultMap中，必须按照id >> result >> association >> collection的顺序写 -->
+
+<mapper namespace="com.itlzh.mapper.ChangeDAO">
+    <resultMap id="changeMap" type="change">
+        <id column="id" property="id"/>
+        <result column="recTime" property="recTime"/>
+        <result column="description" property="description"/>
+        <association property="oneStudent" javaType="student">
+            <id column="studentId" property="studentId"/>
+            <result column="name" property="name"/>
+            <result column="sex" property="sex"/>
+            <result column="classId" property="classId"/>
+            <result column="departmentId" property="departmentId"/>
+            <result column="birthday" property="birthday"/>
+            <result column="nativePlace" property="nativePlace"/>
+        </association>
+        <association property="changecode" javaType="changeCode">
+            <id column="code" property="code"/>
+            <result column="codeDescription" property="description"/>
+        </association>
+    </resultMap>
+
+    <!-- 插入一个学生的学籍变更信息 -->
+    <insert id="addChange" parameterType="change">
+        insert into `change` (studentId, changeLevel, recTime, description)
+            values (#{studentId}, #{changeLevel}, #{recTime}, #{description});
+    </insert>
+
+    <!-- 通过一个学生ID来查询他的学籍变更详细信息 -->
+    <select id="findOneChange" parameterType="string" resultMap="changeMap">
+        select C.id, C.studentId, C.changeLevel, C.recTime, C.description,
+            Ccode.code, Ccode.description codeDescription,
+            S.name
+            from `change` C, change_code Ccode, student S
+                where C.changeLevel = Ccode.code and C.studentId = S.studentId and C.studentId = #{studentId};
+    </select>
+
+    <!-- 查询所有有过学籍变更的同学的基本资料 -->
+    <select id="findAllChangeByLevel" parameterType="int" resultMap="changeMap">
+        select S.studentId studentId, S.name, S.sex, S.classId, S.departmentId, S.birthday, S.nativePlace,
+               C.id, C.changeLevel code, C.recTime, C.description,
+               Ccode.description codeDescription
+            from student S, `change` C, change_code Ccode where S.studentId = C.studentId and C.changeLevel = Ccode.code and C.changeLevel = #{changeLevel} order by S.studentId asc;
+    </select>
+
+    <select id="findChangeByClass" resultMap="changeMap">
+        select S.studentId studentId, S.name, S.sex, S.classId, S.departmentId, S.birthday, S.nativePlace,
+               C.id, C.changeLevel code, C.recTime, C.description,
+               Ccode.description codeDescription
+            from student S, `change` C, change_code Ccode where S.studentId = C.studentId and C.changeLevel = Ccode.code and S.classId = #{classId} order by S.studentId asc;
+    </select>
+
+    <select id="findAllChange" resultMap="changeMap">
+        select S.studentId studentId, S.name, S.sex, S.classId, S.departmentId, S.birthday, S.nativePlace,
+               C.id, C.changeLevel code, C.recTime, C.description,
+               Ccode.description codeDescription
+            from student S, `change` C, change_code Ccode where S.studentId = C.studentId and C.changeLevel = Ccode.code order by S.studentId asc;
+    </select>
+
+    <update id="updateChange" parameterType="change">
+        update `change` set changeLevel=#{changeLevel}, recTime=#{recTime}, description=#{description}
+            where studentId=#{studentId};
+    </update>
+
+    <delete id="deleteChange" parameterType="string">
+        delete from `change` where studentId = #{studentId};
+    </delete>
+</mapper>

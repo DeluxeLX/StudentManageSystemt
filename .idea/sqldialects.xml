@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/src/main/java/com/itlzh/mapper/ChangeDAO.xml" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/itlzh/mapper/CourseDAO.java" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/itlzh/mapper/CourseDAO.xml" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/itlzh/mapper/EducationDAO.xml" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/itlzh/mapper/GradeDAO.xml" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/itlzh/mapper/ISysLogDAO.java" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/itlzh/mapper/PunishmentDAO.xml" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/itlzh/mapper/RewardDAO.xml" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/itlzh/mapper/RoleDAO.java" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/itlzh/mapper/StudentDAO.xml" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/itlzh/mapper/TeacherDAO.xml" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/itlzh/mapper/UserDAO.java" dialect="GenericSQL" />
+  </component>
+</project>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- association标签中，property是type类里面的参数名，column是数据库里的列名 -->
+
+<!-- 在resultMap中，必须按照id >> result >> association >> collection的顺序写 -->
+
+<mapper namespace="com.itlzh.mapper.CourseDAO">
+
+    <resultMap id="courseMap" type="course">
+        <id column="courseId" property="id"/>
+        <result column="name" property="name"/>
+        <result column="credit_hour" property="credit_hour"/>
+        <result column="period" property="period"/>
+        <result column="classTime" property="classTime"/>
+        <result column="classroom" property="classroom"/>
+        <result column="intro" property="intro"/>
+        <result column="vacantSeats" property="vacantSeats"/>
+        <association property="teacherObj" javaType="teacher">
+            <id column="teacherId" property="id"/>
+            <result column="teacherName" property="name"/>
+            <result column="departmentId" property="departmentId"/>
+        </association>
+        <association property="courseStateObj" javaType="courseState">
+            <id column="courseCode" property="courseCode"/>
+            <result column="description" property="description"/>
+        </association>
+        <collection property="studentList" column="courseId" javaType="java.util.List" ofType="student" select="findStudentBySelectCourse"/>
+    </resultMap>
+
+    <resultMap id="courseMap2" type="course">
+        <id column="courseId" property="id"/>
+        <result column="name" property="name"/>
+        <result column="classTime" property="classTime"/>
+        <result column="classroom" property="classroom"/>
+        <result column="vacantSeats" property="vacantSeats"/>
+        <association property="teacherObj" javaType="teacher">
+            <result column="teacherName" property="name"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="studentMap2" type="student">
+        <id column="studentId" property="studentId"/>
+        <result column="name" property="name"/>
+        <result column="sex" property="sex"/>
+        <result column="classId" property="classId"/>
+        <result column="departmentId" property="departmentId"/>
+    </resultMap>
+
+    <resultMap id="courseTableMap" type="courseTable">
+        <id property="studentId" column="studentId"/>
+        <result property="selectCourseCount" column="selectCourseCount"/>
+        <collection property="courseList" column="studentId" javaType="java.util.List" ofType="course" select="findAllCourseByOneSid"/>
+    </resultMap>
+
+    <resultMap id="scoreMap" type="score">
+        <id property="studentId" column="studentId"/>
+        <result property="courseName" column="courseName"/>
+        <result property="credit_hour" column="credit_hour"/>
+        <result property="score" column="score"/>
+    </resultMap>
+
+    <!-- 查询所有课程详情 -->
+    <select id="findAllCourse" resultMap="courseMap">
+        select C.id courseId, C.name name, C.credit_hour, C.period, C.classTime, C.classroom, C.intro, C.vacantSeats,
+               T.id teacherId, T.name teacherName, T.departmentId,
+               CS.courseCode courseCode, CS.description
+            from (course C inner join teacher T on C.teacherId = T.id)
+                          inner join course_state CS on C.state = CS.courseCode where C.state = 3 order by C.id asc;
+    </select>
+
+    <!-- 辅助collection标签使用 -->
+    <select id="findStudentBySelectCourse" resultMap="studentMap2">
+        select S.studentId studentId, S.name name, S.sex sex, S.classId classId, S.departmentId departmentId
+            from course C, student S, v_selectcourse VS
+                where C.id = VS.courseId and S.studentId = VS.studentId and VS.courseId = #{courseId};
+    </select>
+
+    <!-- 学生选课 -->
+    <insert id="addSelectCourse" parameterType="string">
+        insert into v_selectcourse values (#{studentId}, #{courseId});
+    </insert>
+
+    <select id="findStuIdByName" parameterType="string" resultType="string">
+        select studentId from student where name = #{name};
+    </select>
+
+    <select id="findCourseByCId" parameterType="string" resultMap="courseMap">
+        select C.id courseId, C.name name, C.teacherId,
+               C.credit_hour, C.period, C.classTime, C.classroom, C.intro, C.vacantSeats, C.state courseCode
+            from course C where C.id = #{courseId};
+    </select>
+
+    <select id="findCourseCount" parameterType="string" resultType="int">
+        select selectCourseCount from v_coursecount where studentId = #{studentId};
+    </select>
+
+    <update id="updateCourseCount" parameterType="string">
+        update v_coursecount set selectCourseCount=selectCourseCount+1 where studentId = #{studentId};
+    </update>
+
+    <update id="updateVacantSeatsInt">
+        update course set vacantSeats=vacantSeats-1 where id = #{courseId};
+    </update>
+
+    <select id="findCourseTableByOneStudent" parameterType="string" resultMap="courseTableMap">
+        select studentId, selectCourseCount from v_coursecount where studentId = #{studentId};
+    </select>
+
+    <select id="findAllCourseByOneSid" parameterType="string" resultMap="courseMap2">
+        select C.id courseId, C.name, C.classTime, C.classroom, C.vacantSeats, T.name teacherName
+            from course C, v_selectcourse VS, student S, teacher T
+                where C.id = VS.courseId and S.studentId = VS.studentId and C.teacherId = T.id and S.studentId = #{studentId};
+    </select>
+
+    <select id="findAllScoreByOneStudent" parameterType="string" resultMap="scoreMap">
+        select C.name courseName, C.credit_hour, S.score, S.studentId
+            from course C, score S
+                where C.id = S.courseId and S.studentId = #{studentId};
+    </select>
+
+    <update id="updateCourseState" parameterType="course">
+        update course set state=#{state} where id=#{id};
+    </update>
+</mapper>

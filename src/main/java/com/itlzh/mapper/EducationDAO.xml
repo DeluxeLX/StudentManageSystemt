@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- association标签中，property是type类里面的参数名，column是数据库里的列名 -->
+<!-- 在resultMap中，必须按照id >> result >> association >> collection的顺序写 -->
+
+<mapper namespace="com.itlzh.mapper.EducationDAO">
+
+    <resultMap id="scoreMap" type="score">
+        <id property="studentId" column="studentId"/>
+        <id property="courseName" column="courseId"/>
+        <result property="score" column="score"/>
+    </resultMap>
+
+    <select id="findCourseByApply" resultMap="com.itlzh.mapper.CourseDAO.courseMap">
+        select C.id courseId, C.name name, C.credit_hour, C.period, C.classTime, C.classroom, C.intro, C.vacantSeats,
+               T.id teacherId, T.name teacherName, T.departmentId,
+               CS.courseCode courseCode, CS.description
+            from (course C inner join teacher T on C.teacherId = T.id)
+                 inner join course_state CS on C.state = CS.courseCode where C.state in (0,1,2,6) order by C.id asc;
+    </select>
+
+    <update id="agreeApplication" parameterType="string">
+        update course set state = 4 where id = #{courseId};
+    </update>
+
+    <insert id="addRefuseReason" parameterType="refuseReason">
+        insert into refusereason values (#{courseId}, 6, #{refuseReason});
+    </insert>
+
+    <select id="findScoreByCid" resultMap="scoreMap" parameterType="string">
+        select studentId, courseId, score from score where courseId = #{courseId};
+    </select>
+</mapper>

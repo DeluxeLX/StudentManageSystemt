@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<!-- xml标签顺序很重要跟html文件中head和body顺序一样 -->
+<configuration>
+    <typeAliases>
+        <package name="com.itlzh.pojo"/>
+    </typeAliases>
+
+    <mappers>
+        <package name="com.itlzh.mapper"/>
+    </mappers>
+</configuration>

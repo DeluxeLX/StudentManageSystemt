@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- association标签中，property是type类里面的参数名，column是数据库里的列名 -->
+
+<!-- 在resultMap中，必须按照id >> result >> association >> collection的顺序写 -->
+
+<mapper namespace="com.itlzh.mapper.PunishmentDAO">
+    <resultMap id="punishmentMap" type="punishment">
+        <id column="id" property="id"/>
+        <result column="recTime" property="recTime"/>
+        <result column="enable" property="enable"/>
+        <result column="description" property="description"/>
+        <association property="oneStudent" javaType="student">
+            <id column="studentId" property="studentId"/>
+            <result column="name" property="name"/>
+            <result column="sex" property="sex"/>
+            <result column="classId" property="classId"/>
+            <result column="departmentId" property="departmentId"/>
+            <result column="birthday" property="birthday"/>
+            <result column="nativePlace" property="nativePlace"/>
+        </association>
+        <association property="punishLevelObj" javaType="punishLevel">
+            <id column="code" property="code"/>
+            <result column="punishmentDescription" property="description"/>
+        </association>
+    </resultMap>
+
+    <insert id="addPunishment" parameterType="punishment">
+        insert into punishment (studentId, punishLevel, recTime, enable, description)
+            values (#{studentId}, #{punishLevel}, #{recTime}, #{enable}, #{description});
+    </insert>
+
+    <select id="findOnePunishment" parameterType="string" resultMap="punishmentMap">
+        select P.id, P.recTime, P.enable, P.description,
+               S.studentId, S.name, S.sex, S.classId, S.departmentId,
+               PL.code, PL.description punishmentDescription
+            from student S, punishment P, punish_levels PL
+                where P.studentId = S.studentId and P.punishLevel = PL.`code` and P.studentId = #{studentId};
+    </select>
+
+    <select id="findAllPunishmentByLevel" parameterType="int" resultMap="punishmentMap">
+        select P.id, P.recTime, P.enable, P.description,
+               S.studentId, S.name, S.sex, S.classId, S.departmentId,
+               PL.code, PL.description punishmentDescription
+            from student S, punishment P, punish_levels PL
+                where P.studentId = S.studentId and P.punishLevel = PL.`code` and P.punishLevel = #{punishLevel} order by S.studentId asc;
+    </select>
+
+    <select id="findPunishmentByClass" parameterType="string" resultMap="punishmentMap">
+        select P.id, P.recTime, P.enable, P.description,
+               S.studentId, S.name, S.sex, S.classId, S.departmentId,
+               PL.code, PL.description punishmentDescription
+            from student S, punishment P, punish_levels PL
+                where P.studentId = S.studentId and P.punishLevel = PL.`code` and S.classId = #{classId} order by S.studentId asc;
+    </select>
+
+    <select id="findAllPunishment" resultMap="punishmentMap">
+        select P.id, P.recTime, P.enable, P.description,
+               S.studentId, S.name, S.sex, S.classId, S.departmentId,
+               PL.code, PL.description punishmentDescription
+            from student S, punishment P, punish_levels PL
+                where P.studentId = S.studentId and P.punishLevel = PL.`code` order by S.studentId asc;
+    </select>
+
+    <update id="updatePunishment" parameterType="punishment">
+        update punishment set punishLevel=#{punishLevel}, recTime=#{recTime}, enable=#{enable}, description=#{description}
+            where studentId=#{studentId};
+    </update>
+
+    <delete id="deletePunishment" parameterType="string">
+        delete from punishment where studentId = #{studentId};
+    </delete>
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.2.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!-- 控制类组件扫描器 -->
+    <context:component-scan base-package="com.itlzh.controller"/>
+
+    <!-- 视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--
+        将 Object 数据转化为 JSON 数据，需要由消息转换器 HttpMessageConverter 完成。而转
+        换器的开启，需要由<mvc:annotation-driven/>来完成。
+    -->
+    <!-- 注册mvc的注解驱动 -->
+    <mvc:annotation-driven/>
+
+    <!-- 声明静态资源的第一种处理方式 -->
+<!--    <mvc:default-servlet-handler/>-->
+
+    <!--
+        支持AOP的注解支持，AOP底层使用代理技术
+        JDK动态代理，要求必须有接口
+        cglib代理，生成子类对象，proxy-target-class="true" 默认使用cglib的方式
+    -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+    <mvc:resources location="/css/" mapping="/css/**"/>
+    <mvc:resources location="/img/" mapping="/img/**"/>
+    <mvc:resources location="/js/" mapping="/js/**"/>
+    <mvc:resources location="/plugins/" mapping="/plugins/**"/>
+
+    <!--注册拦截器-->
+<!--    <mvc:interceptors>-->
+<!--        <mvc:interceptor>-->
+<!--            &lt;!&ndash;-->
+<!--                映射要拦截的请求-->
+<!--                path = "/**"  表示拦截所有请求-->
+<!--                先拦截所有请求，再放行几个请求-->
+<!--            &ndash;&gt;-->
+<!--            <mvc:mapping path="/**"/>-->
+
+<!--            &lt;!&ndash;设置放行的请求&ndash;&gt;-->
+<!--            <mvc:exclude-mapping path="/userController/showLogin"/>-->
+<!--            <mvc:exclude-mapping path="/userController/login"/>-->
+<!--            <mvc:exclude-mapping path="/css/**"/>-->
+<!--            <mvc:exclude-mapping path="/js/**"/>-->
+<!--            <mvc:exclude-mapping path="/image/**"/>-->
+
+<!--            &lt;!&ndash;配置具体的拦截器实现功能的类&ndash;&gt;-->
+<!--            <bean class="com.itlzh.controller.interceptor.LoginInterceptor"/>-->
+<!--        </mvc:interceptor>-->
+<!--    </mvc:interceptors>-->
+</beans>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- association标签中，property是type类里面的参数名，column是数据库里的列名 -->
+<!-- 在resultMap中，必须按照id >> result >> association >> collection的顺序写 -->
+
+<mapper namespace="com.itlzh.mapper.GradeDAO">
+    <resultMap id="gradeMap" type="grade">
+        <id column="id" property="id"/>
+        <result column="mathGrade" property="mathGrade"/>
+        <result column="JavaGrade" property="javaGrade"/>
+        <result column="EnglishGrade" property="englishGrade"/>
+        <result column="sportGrade" property="sportGrade"/>
+        <association property="student" javaType="student">
+            <id column="studentId" property="studentId"/>
+            <result column="name" property="name"/>
+            <result column="sex" property="sex"/>
+            <result column="classId" property="classId"/>
+            <result column="departmentId" property="departmentId"/>
+            <result column="birthday" property="birthday"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="gradeTableMap" type="gradeTable">
+        <result column="studentId" property="studentId"/>
+        <result column="studentName" property="studentName"/>
+        <result column="mathGrade" property="mathGrade"/>
+        <result column="JavaGrade" property="javaGrade"/>
+        <result column="EnglishGrade" property="englishGrade"/>
+        <result column="sportGrade" property="sportGrade"/>
+        <result column="allGrade" property="allGrade"/>
+    </resultMap>
+
+    <resultMap id="gradeAvgMap" type="gradeAvg">
+        <result column="mathAvgGrade" property="mathAvgGrade"/>
+        <result column="javaAvgGrade" property="javaAvgGrade"/>
+        <result column="englishAvgGrade" property="englishAvgGrade"/>
+        <result column="sportAvgGrade" property="sportAvgGrade"/>
+        <result column="allAvgGrade" property="allAvgGrade"/>
+    </resultMap>
+
+    <insert id="addGrade" parameterType="grade">
+        insert into grade (studentId, mathGrade, JavaGrade, EnglishGrade, sportGrade)
+            values (#{studentId}, #{mathGrade}, #{javaGrade}, #{englishGrade}, #{sportGrade});
+    </insert>
+
+    <delete id="deleteGrade" parameterType="string">
+        delete from grade where studentId = #{studentId};
+    </delete>
+
+    <update id="updateGrade" parameterType="grade">
+        update grade set mathGrade=#{mathGrade}, JavaGrade=#{javaGrade}, EnglishGrade=#{englishGrade}, sportGrade=#{sportGrade}
+            where studentId=#{studentId};
+    </update>
+
+    <select id="findAllGrade" resultMap="gradeMap">
+        select G.id, G.studentId, S.`name`, G.mathGrade, G.JavaGrade, G.EnglishGrade, G.sportGrade
+            from grade G, student S
+                where G.studentId = S.studentId order by G.studentId asc;
+    </select>
+
+    <select id="findOneGradeToId" parameterType="string" resultMap="gradeMap">
+        select G.id, G.studentId,
+               S.`name`, S.sex, S.classId, S.departmentId, S.birthday,
+               G.mathGrade, G.JavaGrade, G.EnglishGrade, G.sportGrade
+            from grade G, student S
+                where G.studentId = S.studentId and G.studentId = #{studentId};
+    </select>
+
+    <select id="findOneGradeToName" parameterType="string" resultMap="gradeMap">
+        select G.id, G.studentId, S.`name`, G.mathGrade, G.JavaGrade, G.EnglishGrade, G.sportGrade
+            from grade G, student S
+                where G.studentId = S.studentId and S.name like '%${studentName}%';
+    </select>
+
+    <select id="findAverageScores" resultMap="gradeAvgMap">
+        select avg(mathGrade) mathAvgGrade, avg(JavaGrade) javaAvgGrade, avg(EnglishGrade) englishAvgGrade, avg(sportGrade) sportAvgGrade,
+               avg(mathGrade+JavaGrade+EnglishGrade+sportGrade) allAvgGrade
+            from grade;
+    </select>
+
+    <select id="findAllGradeTable" resultMap="gradeTableMap">
+        select G.studentId, S.`name` studentName, G.mathGrade, G.JavaGrade, G.EnglishGrade, G.sportGrade,
+            G.mathGrade+G.JavaGrade+G.EnglishGrade+G.sportGrade allGrade
+            from grade G, student S
+                where G.studentId = S.studentId order by G.studentId asc;
+    </select>
+</mapper>
